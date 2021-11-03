@@ -3,8 +3,9 @@ MACHINE = qemu-virt
 
 CC = riscv64-unknown-elf-gcc
 AR = riscv64-unknown-elf-ar
-LINKER_SRC = machine/$(MACHINE)/linker.ld
+LINKER_SRC = linker_scripts/machine/$(MACHINE)/linker.ld
 CFLAGS = -march=rv64imac -mabi=lp64 -mcmodel=medany -ffunction-sections -fdata-sections
+CFLAGS += -Iinclude
 LDFLAGS = -nostdlib -nostartfiles -static \
           -Wl,--gc-sections -T$(LINKER_SRC)
 
@@ -14,10 +15,9 @@ LIBRV64QEMU = librv64qemu.a
 EXAMPLE = $(OUT)/hello
 
 GIT_HOOKS := .git/hooks/applied
-CRT_OBJ = $(OUT)/crt.o
-LIB_OBJ = $(OUT)/init.o
+LIB_OBJ = $(OUT)/crt.o $(OUT)/init.o $(OUT)/setup.o $(OUT)/device.o $(OUT)/uart16550.o
 
-all: $(GITHOOKS) $(LIBRV64QEMU) $(EXAMPLE)
+all: $(GIT_HOOKS) $(LIBRV64QEMU) $(EXAMPLE)
 
 $(GIT_HOOKS):
 	@scripts/install-git-hooks
@@ -30,7 +30,15 @@ $(OUT)/%.o: lib/arch/$(ARCH)/%.c
 	mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(OUT)/%.o: machine/$(MACHINE)/%.s
+$(OUT)/%.o: lib/drivers/%.c
+	mkdir -p $(@D)
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(OUT)/%.o: lib/arch/$(ARCH)/machine/$(MACHINE)/%.s
+	mkdir -p $(@D)
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(OUT)/%.o: lib/arch/$(ARCH)/machine/$(MACHINE)/%.c
 	mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -38,7 +46,7 @@ $(OUT)/%.o: example/%.c
 	mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(EXAMPLE): %: %.o $(CRT_OBJ) $(LIBRV64QEMU)
+$(EXAMPLE): %: %.o $(LIBRV64QEMU)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 qemu: $(LIBRV64QEMU) $(EXAMPLE)
