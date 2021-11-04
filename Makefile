@@ -11,11 +11,22 @@ LDFLAGS = -nostdlib -nostartfiles -static \
 
 CURDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 OUT ?= build
-LIBRV64QEMU = librv64qemu.a
-EXAMPLE = $(OUT)/hello
+SHELL_HACK := $(shell mkdir -p $(OUT))
 
 GIT_HOOKS := .git/hooks/applied
-LIB_OBJ = $(OUT)/crt.o $(OUT)/init.o $(OUT)/setup.o $(OUT)/device.o $(OUT)/uart16550.o
+
+LIBRV64QEMU = librv64qemu.a
+LIB_CSRCS = $(shell find ./lib -name '*.c')
+_LIB_OBJ =  $(notdir $(LIB_CSRCS))
+LIB_OBJ = $(_LIB_OBJ:%.c=$(OUT)/%.o)
+LIB_OBJ += $(OUT)/crt.o
+
+EXAMPLE = $(OUT)/hello
+EXAMPLE_CSRCS = $(shell find ./example -name '*.c')
+EXAMPLE_OBJ = $(OUT)/hello.o
+
+vpath %.c $(sort $(dir $(LIB_CSRCS)))
+vpath %.c $(sort $(dir $(EXAMPLE_CSRCS)))
 
 all: $(GIT_HOOKS) $(LIBRV64QEMU) $(EXAMPLE)
 
@@ -26,24 +37,10 @@ $(GIT_HOOKS):
 $(LIBRV64QEMU): $(LIB_OBJ)
 	$(AR) cr $@ $(LIB_OBJ)
 
-$(OUT)/%.o: lib/arch/$(ARCH)/%.c
-	mkdir -p $(@D)
-	$(CC) -c $(CFLAGS) $< -o $@
-
-$(OUT)/%.o: lib/drivers/%.c
-	mkdir -p $(@D)
+$(OUT)/%.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(OUT)/%.o: lib/arch/$(ARCH)/machine/$(MACHINE)/%.s
-	mkdir -p $(@D)
-	$(CC) -c $(CFLAGS) $< -o $@
-
-$(OUT)/%.o: lib/arch/$(ARCH)/machine/$(MACHINE)/%.c
-	mkdir -p $(@D)
-	$(CC) -c $(CFLAGS) $< -o $@
-
-$(OUT)/%.o: example/%.c
-	mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(EXAMPLE): %: %.o $(LIBRV64QEMU)
@@ -54,5 +51,5 @@ qemu: $(LIBRV64QEMU) $(EXAMPLE)
 		-serial mon:stdio \
 		-cpu rv64 -bios none -kernel $(EXAMPLE)
 clean:
-	$(RM) -rf build
-	$(RM) -rf $(LIBRV64QEMU)
+	$(RM) $(LIB_OBJ) $(EXAMPLE_OBJ)
+	$(RM) $(LIBRV64QEMU) $(EXAMPLE)

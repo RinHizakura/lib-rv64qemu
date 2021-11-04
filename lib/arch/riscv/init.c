@@ -1,15 +1,18 @@
+#include <stddef.h>
 #include "arch/riscv/device.h"
 #include "arch/riscv/machine.h"
+
+int main(int argc, char **argv);
 
 void lib_main()
 {
     machine_setup();
-    console_dev->putchar('A');
-    console_dev->putchar('m');
-    console_dev->putchar('i');
-    console_dev->putchar('t');
-    console_dev->putchar('a');
-    // exit(main(1,{"dummy", NULL}));
-    while (1)
-        ;
+
+    char *argv[] = {"dummy", NULL};
+    int ret = main(1, argv);
+    // make sure we did return from main
+    console_dev->putchar(ret);
+    // exit(ret);
+    while (1) {
+    };
 }
