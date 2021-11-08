@@ -5,7 +5,7 @@ CC = riscv64-unknown-elf-gcc
 AR = riscv64-unknown-elf-ar
 LINKER_SRC = linker_scripts/machine/$(MACHINE)/linker.ld
 CFLAGS = -march=rv64imac -mabi=lp64 -mcmodel=medany -ffunction-sections -fdata-sections
-CFLAGS += -Wall -Wextra -Werror -Iinclude
+CFLAGS += -Wall -Wextra -Iinclude
 LDFLAGS = -nostdlib -nostartfiles -static \
           -Wl,--gc-sections -T$(LINKER_SRC)
 
