@@ -1,6 +1,6 @@
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
-#include "utils/bitops.h"
 
 /* Warning: The vsprintf function can be dangerous because it can potentially
  * output more characters than can fit in the allocation size of the string s!
@@ -8,13 +8,14 @@
 int vsprintf(char *s, const char *format, va_list arg)
 {
     size_t pos = 0;
+    bool longarg = 0;
 
     for (; *format; format++) {
         if (*format == '%') {
             format++;
             switch (*format) {
             case 'd': {
-                long num = va_arg(arg, int);
+                long num = longarg ? va_arg(arg, long) : va_arg(arg, int);
                 if (num < 0) {
                     num *= -1;
                     s[pos] = '-';
@@ -31,9 +32,9 @@ int vsprintf(char *s, const char *format, va_list arg)
                 pos += digits;
             } break;
             case 'x': {
-                long num = va_arg(arg, int);
-                int long_bits = sizeof(long) * 8;
-                long digits = ((long_bits - clz(num) - 1) / 4) + 1;
+                long num = longarg ? va_arg(arg, long) : va_arg(arg, int);
+                int long_bits = (longarg ? sizeof(long) : sizeof(int)) * 8;
+                long digits = ((long_bits - __builtin_clz(num) - 1) / 4) + 1;
                 for (int i = digits - 1; i >= 0; i--) {
                     int tmp = num & 0xf;
                     s[pos + i] = tmp < 10 ? '0' + tmp : 'a' + tmp - 10;
