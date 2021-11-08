@@ -1,7 +1,9 @@
-#include "arch/riscv/device.h"
+#include <stdio.h>
 
-int putchar(int ch)
+int puts(const char *s)
 {
-    return console_dev->putchar(ch);
+    while (*s)
+        putchar(*s++);
+    putchar('\n');
+    return 0;  // simply return a non-negative value 0
 }
-
