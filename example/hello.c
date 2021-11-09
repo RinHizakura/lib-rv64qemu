@@ -7,6 +7,6 @@ int main()
     int b = 0x800000fb;
     printf("%d + %d = %d\n", a, b, a + b);
     printf("%x + %x = %x\n", a, b, a + b);
-    printf("%x\n", (long) -2147483394 + -2147483397);
+    printf("%lx\n", (long) -2147483394 + -2147483397);
     return 'M';
 }

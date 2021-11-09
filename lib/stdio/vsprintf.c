@@ -8,12 +8,17 @@
 int vsprintf(char *s, const char *format, va_list arg)
 {
     size_t pos = 0;
-    bool longarg = 0;
+    bool longarg = false;
 
     for (; *format; format++) {
         if (*format == '%') {
+        format:
             format++;
             switch (*format) {
+            case 'l': {
+                longarg = true;
+                goto format;
+            } break;
             case 'd': {
                 long num = longarg ? va_arg(arg, long) : va_arg(arg, int);
                 if (num < 0) {
@@ -22,7 +27,7 @@ int vsprintf(char *s, const char *format, va_list arg)
                 }
                 pos++;
 
-                long digits = 1;
+                int digits = 1;
                 for (long nn = num; nn /= 10; digits++)
                     ;
                 for (int i = digits - 1; i >= 0; i--) {
@@ -30,17 +35,28 @@ int vsprintf(char *s, const char *format, va_list arg)
                     num /= 10;
                 }
                 pos += digits;
+                longarg = false;
             } break;
             case 'x': {
-                long num = longarg ? va_arg(arg, long) : va_arg(arg, int);
-                int long_bits = (longarg ? sizeof(long) : sizeof(int)) * 8;
-                long digits = ((long_bits - __builtin_clz(num) - 1) / 4) + 1;
+                int digits;
+                long num;
+                if (!longarg) {
+                    num = va_arg(arg, int);
+                    digits =
+                        (((sizeof(int) * 8) - __builtin_clz(num) - 1) / 4) + 1;
+                } else {
+                    num = va_arg(arg, long);
+                    digits =
+                        (((sizeof(long) * 8) - __builtin_clzl(num) - 1) / 4) +
+                        1;
+                }
                 for (int i = digits - 1; i >= 0; i--) {
                     int tmp = num & 0xf;
                     s[pos + i] = tmp < 10 ? '0' + tmp : 'a' + tmp - 10;
                     num >>= 4;
                 }
                 pos += digits;
+                longarg = false;
             } break;
             default:
                 break;
