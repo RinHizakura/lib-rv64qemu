@@ -1,7 +1,5 @@
 # lib-rv64qemu
 
-**WIP**
-
 ## Introduction
 
 This project is going to show you how can we run bare metal RISC-V codes in a qemu-virt system
