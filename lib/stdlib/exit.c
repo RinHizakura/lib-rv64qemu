@@ -2,7 +2,7 @@
 
 void exit(int status)
 {
-    console_dev->putchar(status);
+    poweroff_dev->poweroff(status);
     while (1)
         ;
 }

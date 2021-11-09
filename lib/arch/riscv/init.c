@@ -12,7 +12,6 @@ void lib_main()
 
     char *argv[] = {"dummy", NULL};
     int ret = main(1, argv);
-    console_dev->putchar(ret);
     exit(ret);
     while (1)
         ;

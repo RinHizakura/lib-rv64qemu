@@ -14,5 +14,5 @@ int main()
     char *str = "RinHizakura";
     printf("This is %c \n", c);
     printf("This is %s \n", str);
-    return 'M';
+    return 0;
 }
