@@ -7,6 +7,8 @@ emulator without any OS supported. It doesn't aim to be useful since there alrea
 good work(see [reference](#Reference)). However, I think that it is still worth getting our
 hands dirty to see what's happened inside the "magic".
 
+You can read my [chinese note](https://hackmd.io/@RinHizakura/BkAZoqyvt) for more
+information of this project.
 ## Run
 
 Compile the library with the "hello" example.
