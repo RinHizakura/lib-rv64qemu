@@ -58,6 +58,16 @@ int vsprintf(char *s, const char *format, va_list arg)
                 pos += digits;
                 longarg = false;
             } break;
+            case 'c': {
+                s[pos++] = (char) va_arg(arg, int);
+            } break;
+            case 's': {
+                const char *s2 = va_arg(arg, const char *);
+                while (*s2) {
+                    s[pos++] = *s2;
+                    s2++;
+                }
+            } break;
             default:
                 break;
             }
