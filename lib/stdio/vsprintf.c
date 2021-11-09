@@ -60,6 +60,7 @@ int vsprintf(char *s, const char *format, va_list arg)
             } break;
             case 'c': {
                 s[pos++] = (char) va_arg(arg, int);
+                longarg = false;
             } break;
             case 's': {
                 const char *s2 = va_arg(arg, const char *);
@@ -67,6 +68,7 @@ int vsprintf(char *s, const char *format, va_list arg)
                     s[pos++] = *s2;
                     s2++;
                 }
+                longarg = false;
             } break;
             default:
                 break;
