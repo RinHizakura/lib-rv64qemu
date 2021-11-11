@@ -1,4 +1,4 @@
-# lib-rv64qemu
+# lib-rvqemu
 
 ## Introduction
 
